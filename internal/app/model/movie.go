@@ -1,7 +1,6 @@
-package main
+package model
 
 import "time"
-
 
 type Movie struct {
 	ID        string `gorm:"primarykey"`

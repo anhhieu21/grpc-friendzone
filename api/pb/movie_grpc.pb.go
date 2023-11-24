@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: proto/movie.proto
+// source: api/proto/movie.proto
 
 package pb
 
@@ -245,5 +245,5 @@ var MovieService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/movie.proto",
+	Metadata: "api/proto/movie.proto",
 }
