@@ -26,7 +26,7 @@ func NewMovieRepoImpl(db *gorm.DB) MovieRepo {
 
 func (m *MovieRepoImpl) GetMovie(id string) model.Movie {
 	var movie model.Movie
-	result := m.Db.Find(&movie, id)
+	result := m.Db.Where("id = ?", id).First(&movie)
 	utils.ErrorPanic(result.Error)
 
 	return movie
@@ -37,7 +37,7 @@ func (m *MovieRepoImpl) CreateMovie(movie model.Movie) model.Movie {
 	result := m.Db.Create(&movie)
 	utils.ErrorPanic(result.Error)
 
-	m.Db.Find(&data, movie.ID)
+	m.Db.Where("id = ?", movie.ID).First(&data)
 
 	return data
 }
@@ -50,8 +50,9 @@ func (m *MovieRepoImpl) GetMovies() []model.Movie {
 }
 func (m *MovieRepoImpl) UpdateMovie(movie model.Movie) (model.Movie, error) {
 	var updateData = req.MovieRequest{
-		Title: movie.Title,
-		Genre: movie.Genre,
+		Title:     movie.Title,
+		Genre:     movie.Genre,
+		UpdatedAt: movie.UpdatedAt,
 	}
 	result := m.Db.Model(&movie).Where("id=?", movie.ID).Updates(&updateData)
 

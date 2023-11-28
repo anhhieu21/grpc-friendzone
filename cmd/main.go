@@ -3,23 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
+	"grpctest/api/handler"
 	"grpctest/api/pb"
+	"grpctest/helper/middleware"
+	"grpctest/internal/app/model"
+	"grpctest/internal/app/repository"
+	"grpctest/internal/app/service"
 	"log"
 	"net"
-	"time"
 
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-type Movie struct {
-	ID        string `gorm:"primarykey"`
-	Title     string
-	Genre     string
-	CreatedAt time.Time `gorm:"autoCreateTime:false"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime:false"`
-}
 
 func init() {
 	DatabaseConnection()
@@ -29,19 +25,20 @@ var DB *gorm.DB
 var err error
 
 func DatabaseConnection() {
-	host := "localhost"
+	host := "nonsense.ddns.net"
 	port := "5432"
-	dbName := "postgres"
+	dbName := "friendzone"
 	dbUser := "postgres"
 	password := "1111"
 	dns := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
 		host,
 		port,
-		dbUser,
 		dbName,
+		dbUser,
 		password)
 	DB, err = gorm.Open(postgres.Open(dns), &gorm.Config{})
-	DB.AutoMigrate(Movie{})
+	DB.AutoMigrate(model.Movie{})
+	DB.AutoMigrate(model.User{})
 	if err != nil {
 		log.Fatal("Error connectiong to the database...", err)
 	}
@@ -53,10 +50,6 @@ var (
 	port = flag.Int("port", 8080, "gRPC server port")
 )
 
-type server struct {
-	pb.UnimplementedMovieServiceServer
-}
-
 func main() {
 	fmt.Println("gRPC server running ...")
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
@@ -64,9 +57,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
+	movieRepoImpl := repository.NewMovieRepoImpl(DB)
+	movieServiceImpl := service.NewMovieServiceImpl(movieRepoImpl)
+	movieHandler := handler.NewMovieHandler(movieServiceImpl)
+	//user
+	userRepoImpl := repository.NewUserRepoImpl(DB)
+	userServiceImpl := service.NewUserServiceImpl(userRepoImpl)
+	userHandler := handler.NewUserhandler(userServiceImpl)
 
-	s := grpc.NewServer()
-	pb.RegisterMovieServiceServer(s, &server{})
+	s := grpc.NewServer(grpc.ChainUnaryInterceptor(middleware.ValidateUserInterceptor()))
+	pb.RegisterMovieServiceServer(s, movieHandler)
+	pb.RegisterUserServiceServer(s, userHandler)
 
 	log.Printf("Server listening at %v", lis.Addr())
 

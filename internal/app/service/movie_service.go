@@ -7,23 +7,22 @@ import (
 	"grpctest/internal/app/repository"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type MovieService interface {
 	CreateMovie(movie req.MovieRequest) model.Movie
 	GetMovie(id string) model.Movie
 	GetMovies() []model.Movie
-	UpdateMovie(movie req.MovieRequest) model.Movie
+	UpdateMovie(movie req.MovieRequest) (model.Movie, error)
 	DeleteMovie(id string) (bool, error)
 }
 type MovieServiceImpl struct {
 	MovieRepo repository.MovieRepo
 }
 
-func NewMovieServiceImpl(db *gorm.DB) MovieService {
+func NewMovieServiceImpl(repo repository.MovieRepo) MovieService {
 	return &MovieServiceImpl{
-		MovieRepo: repository.NewMovieRepoImpl(db),
+		MovieRepo: repo,
 	}
 }
 
@@ -53,17 +52,18 @@ func (m *MovieServiceImpl) GetMovie(id string) model.Movie {
 
 // GetMovies implements MovieService.
 func (m *MovieServiceImpl) GetMovies() []model.Movie {
-	fmt.Println("Delete Movies")
+	fmt.Println("Get Movies")
 	return m.MovieRepo.GetMovies()
 }
 
 // UpdateMovie implements MovieService.
-func (m *MovieServiceImpl) UpdateMovie(movie req.MovieRequest) model.Movie {
+func (m *MovieServiceImpl) UpdateMovie(movie req.MovieRequest) (model.Movie, error) {
 	fmt.Println("Update Movie")
 	var data = model.Movie{
+		ID:    movie.ID,
 		Title: movie.Title,
 		Genre: movie.Genre,
 	}
-	m.MovieRepo.UpdateMovie(data)
-	return data
+	result, err := m.MovieRepo.UpdateMovie(data)
+	return result, err
 }

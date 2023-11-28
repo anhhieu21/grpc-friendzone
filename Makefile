@@ -1,4 +1,4 @@
-gen-cal:
+proto:
 	protoc api/proto/movie.proto --go-grpc_out=.
 	protoc api/proto/movie.proto --go_out=.
 	

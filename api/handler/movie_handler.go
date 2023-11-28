@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"context"
@@ -49,15 +49,25 @@ func (m *MovieHandler) GetMovies(ctx context.Context, rq *pb.ReadMoviesRequest) 
 	var movies []*pb.Movie
 	result := m.movieService.GetMovies()
 	for _, e := range result {
-		newMovie = &pb.Movie{
+		newMovie := &pb.Movie{
 			Id:    e.ID,
-            Title: e.Title,
-            Genre: e.Genre,
+			Title: e.Title,
+			Genre: e.Genre,
 		}
-		movies = append(movies,movie )
+		movies = append(movies, newMovie)
 	}
-	return &pb.ReadMoviesResponse{Movies: result}, nil
+	return &pb.ReadMoviesResponse{Movies: movies}, nil
 }
 func (m *MovieHandler) UpdateMovie(ctx context.Context, rq *pb.UpdateMovieRequest) (*pb.UpdateMovieResponse, error) {
-
+	result, err := m.movieService.UpdateMovie(req.MovieRequest{
+		ID: rq.Movie.GetId(),
+		Title: rq.Movie.GetTitle(),
+		Genre: rq.Movie.GetGenre(),
+	})
+	utils.ErrorPanic(err)
+	return &pb.UpdateMovieResponse{Movie: &pb.Movie{
+		Id:    result.ID,
+		Title: result.Title,
+		Genre: result.Genre,
+	}}, nil
 }
