@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"grpctest/api/handler"
 	"grpctest/api/pb"
-	"grpctest/helper/middleware"
 	"grpctest/internal/app/model"
 	"grpctest/internal/app/repository"
 	"grpctest/internal/app/service"
@@ -27,7 +26,7 @@ var err error
 func DatabaseConnection() {
 	host := "nonsense.ddns.net"
 	port := "5432"
-	dbName := "friendzone"
+	dbName := "movieapp"
 	dbUser := "postgres"
 	password := "1111"
 	dns := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
@@ -65,7 +64,7 @@ func main() {
 	userServiceImpl := service.NewUserServiceImpl(userRepoImpl)
 	userHandler := handler.NewUserhandler(userServiceImpl)
 
-	s := grpc.NewServer(grpc.ChainUnaryInterceptor(middleware.ValidateUserInterceptor()))
+	s := grpc.NewServer()
 	pb.RegisterMovieServiceServer(s, movieHandler)
 	pb.RegisterUserServiceServer(s, userHandler)
 
