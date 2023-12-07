@@ -49,7 +49,16 @@ message LoginRequest {
 message LoginResponse {
     string token = 1;
 }
-
+message UpdateUserRequest{
+    string id = 1;
+    string name = 2;
+    string age = 3;
+    string email = 4;
+    string phone = 5;
+}
+message UpdateUserResponse{
+    User user = 1;
+}
 message CreateMovieRequest{
     Movie movie = 1;
 }
@@ -93,6 +102,7 @@ service UserService{
     rpc Login(LoginRequest) returns (LoginResponse){}
     rpc GetUser(GetUserRequest) returns (GetUserResponse){}
     rpc RegisterUser(CreateUserRequest) returns (CreateUserResponse){}
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
 }
 service MovieService{
     rpc CreateMovie(CreateMovieRequest) returns (CreateMovieResponse){}

@@ -24,11 +24,11 @@ var DB *gorm.DB
 var err error
 
 func DatabaseConnection() {
-	host := "nonsense.ddns.net"
+	host := "localhost"
 	port := "5432"
-	dbName := "movieapp"
-	dbUser := "postgres"
-	password := "1111"
+	dbName := "hieudev"
+	dbUser := "hieudev"
+	password := "hieudev21"
 	dns := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
 		host,
 		port,
@@ -51,7 +51,7 @@ var (
 
 func main() {
 	fmt.Println("gRPC server running ...")
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", *port))
 
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
